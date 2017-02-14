@@ -7,7 +7,6 @@ import org.vaadin.stepbystep.person.backend.Person;
 import org.vaadin.stepbystep.person.backend.PersonService;
 
 import com.vaadin.cdi.CDIUI;
-import com.vaadin.data.provider.DataProvider;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -25,51 +24,41 @@ public class ContactsUI extends UI {
 
     private void savePerson(Person person) {
         Person newPerson = service.save(person);
-
+        // Ensure new bean is edited in the future
         editor.setPerson(newPerson);
-        grid.getDataProvider().refreshItem(newPerson);
+
+        throw new RuntimeException("Make grid use the new person instance");
     }
 
     private void deletePerson(Person person) {
         service.delete(person);
 
-        /*
-         * Would be nice, but not critical, to have a fine-grained way of
-         * informing that a single item has been removed.
-         */
-        grid.getDataProvider().refreshAll();
+        throw new RuntimeException(
+                "Make sure grid no longer shows the instance");
 
-        selectDefault();
+        // selectDefault();
     }
 
     @PostConstruct
     void load() {
         service.loadData();
 
-        grid.addSelectionListener(evt -> {
-            Person selectedPerson = evt.getFirstSelectedItem().orElse(null);
-            if (selectedPerson == null) {
-                selectDefault();
-            } else {
-                editor.setPerson(selectedPerson);
-            }
-        });
+        /*
+         * TODO:
+         *
+         * Make grid to fetch items from service
+         *
+         * Configure columns: First name, Last name and Email address
+         *
+         * Add a listener that runs editor.setPerson with the selected row
+         * whenever it changes
+         */
 
-        DataProvider<Person, Void> container = DataProvider.fromCallbacks(
-                query -> service.getEntries().stream().skip(query.getOffset())
-                        .limit(query.getLimit()),
-                query -> service.getEntries().size());
-        grid.setDataProvider(container);
-
-        grid.addColumn(Person::getFirstName).setCaption("First name");
-        grid.addColumn(Person::getLastName).setCaption("Last name");
-        grid.addColumn(Person::getEmail).setCaption("Email address");
-
-        selectDefault();
+        // selectDefault();
     }
 
     public void selectDefault() {
-        grid.getSelectionModel().select(service.getEntries().get(0));
+        grid.select(service.getEntries().get(0));
     }
 
     @Override

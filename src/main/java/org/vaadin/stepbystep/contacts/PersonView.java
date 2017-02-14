@@ -1,14 +1,6 @@
 package org.vaadin.stepbystep.contacts;
 
-import java.time.ZoneId;
-import java.util.Date;
-
 import org.vaadin.stepbystep.person.backend.Person;
-
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationException;
-import com.vaadin.data.converter.LocalDateToDateConverter;
-import com.vaadin.server.ExternalResource;
 
 public class PersonView extends PersonDesign {
 
@@ -20,38 +12,30 @@ public class PersonView extends PersonDesign {
         void deletePerson(Person person);
     }
 
-    Binder<Person> binder = new Binder<>(Person.class);
-
-    private Person editedPerson;
-
-    public PersonView(PersonSaveListener saveEvt, PersonDeleteListener delEvt) {
-        binder.forMemberField(dateOfBirth)
-                .withConverter(new LocalDateToDateConverter());
-        binder.bindInstanceFields(this);
-
+    public PersonView(PersonSaveListener saveListener,
+            PersonDeleteListener deleteListener) {
         save.addClickListener(evt -> {
-            try {
-                binder.writeBean(editedPerson);
-                saveEvt.savePerson(editedPerson);
-            } catch (ValidationException e) {
-                e.printStackTrace();
-            }
+            throw new RuntimeException(
+                    "Implement me to ensure the bean is updated and then call the save listener");
         });
 
         cancel.addClickListener(evt -> {
-            binder.readBean(editedPerson);
+            throw new RuntimeException(
+                    "Implement me to reset to the last saved version of the edited person");
         });
 
         delete.addClickListener(evt -> {
-            delEvt.deletePerson(editedPerson);
+            throw new RuntimeException(
+                    "Call the delete listener with the currently edited person");
         });
     }
 
     public void setPerson(Person selectedRow) {
-        this.editedPerson = selectedRow;
-        binder.readBean(selectedRow);
-
-        picture.setSource(new ExternalResource(selectedRow.getPicture()));
+        /*
+         * TODO
+         *
+         * Ensure all fields (and the picture) are updated
+         */
     }
 
 }
